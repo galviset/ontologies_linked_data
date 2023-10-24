@@ -14,9 +14,10 @@ GOO_HOST         = ENV.include?("GOO_HOST")         ? ENV["GOO_HOST"]         : 
 REDIS_HOST       = ENV.include?("REDIS_HOST")       ? ENV["REDIS_HOST"]       : "localhost"
 REDIS_PORT       = ENV.include?("REDIS_PORT")       ? ENV["REDIS_PORT"]       : 6379
 SOLR_TERM_SEARCH_URL = ENV.include?("SOLR_TERM_SEARCH_URL") ? ENV["SOLR_TERM_SEARCH_URL"] : "http://localhost:8983/solr/term_search_core1"
-SOLR_PROP_SEARCH_URL = ENV.include?("SOLR_PROP_SEARCH_URL") ? ENV["SOLR_PROP_SEARCH_URL"] : "http://localhost:8983/solr/prop_search_core1"
-
+SOLR_PROP_SEARCH_URL = ENV.include?("SOLR_PROP_SEARCH_URL") ? ENV["SOLR_PROP_SEARCH_URL"] : "http://localhost:8984/solr/prop_search_core1"
+GOO_SLICES = ENV["GOO_SLICES"] || 500
 LinkedData.config do |config|
+  Goo.slice_loading_size = GOO_SLICES.to_i
   config.goo_backend_name              = GOO_BACKEND_NAME.to_s
   config.goo_host                      = GOO_HOST.to_s
   config.goo_port                      = GOO_PORT.to_i
