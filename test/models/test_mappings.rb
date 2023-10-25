@@ -20,23 +20,19 @@ class TestMapping < LinkedData::TestOntologyCommon
     helper.submission_parse(ONT_ACR1,
                      "MappingOntTest1",
                      "./test/data/ontology_files/BRO_v3.3.owl", 11,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false)
     helper.submission_parse(ONT_ACR2,
                      "MappingOntTest2",
                      "./test/data/ontology_files/CNO_05.owl", 22,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false)
     helper.submission_parse(ONT_ACR3,
                      "MappingOntTest3",
                      "./test/data/ontology_files/aero.owl", 33,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false)
     helper.submission_parse(ONT_ACR4,
                      "MappingOntTest4",
                      "./test/data/ontology_files/fake_for_mappings.owl", 44,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false)
     LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
   end
 
@@ -277,8 +273,7 @@ class TestMapping < LinkedData::TestOntologyCommon
     helper.submission_parse(ONT_ACR1,
                      "MappingOntTest1",
                      "./test/data/ontology_files/BRO_v3.3.owl", 12,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false)
     latest_sub1 = LinkedData::Models::Ontology.find(RDF::URI.new(ont_id)).first.latest_submission
     LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
     ct1 = LinkedData::Models::MappingCount.where.all.length

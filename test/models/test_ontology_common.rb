@@ -97,7 +97,10 @@ module LinkedData
       assert_equal true, ont_submission.exist?(reload=true)
       begin
         tmp_log = Logger.new(TestLogFile.new)
-        ont_submission.process_submission(tmp_log, parse_options)
+        t = Benchmark.measure do
+          ont_submission.process_submission(tmp_log, parse_options)
+        end
+        puts "process submission time: #{t} "
       rescue Exception => e
         puts "Error, logged in #{tmp_log.instance_variable_get("@logdev").dev.path}"
         raise e
@@ -149,7 +152,7 @@ module LinkedData
       assert (ont_submission.valid?)
       ont_submission.save
       assert_equal true, ont_submission.exist?(reload=true)
-      parse_options = {process_rdf: true, index_search: true, run_metrics: true, reasoning: true}
+      parse_options = {process_rdf: true, extract_metadata: false}
       begin
         tmp_log = Logger.new(TestLogFile.new)
         ont_submission.process_submission(tmp_log, parse_options)

@@ -299,7 +299,7 @@ class TestOntology < LinkedData::TestOntologyCommon
   end
 
   def test_ontology_delete
-    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: true)
+    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: false)
     u, of, contact = ontology_objects()
     o1 = ontologies[0]
     o2 = ontologies[1]

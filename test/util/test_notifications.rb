@@ -92,7 +92,8 @@ class TestNotifications < LinkedData::TestCase
       subscription = _subscription(ont)
       @@user.subscription = @@user.subscription.dup << subscription
       @@user.save
-      ont.latest_submission(status: :any).process_submission(Logger.new(TestLogFile.new))
+      ont.latest_submission(status: :any).process_submission(Logger.new(TestLogFile.new), process_rdf: true,
+                                                             extract_metadata: false, generate_missing_labels: false)
       subscription.bring :user
       admin_mails =  LinkedData::Utils::Notifier.admin_mails(ont)
       mail_sent_count = subscription.user.size + 1

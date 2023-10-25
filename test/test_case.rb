@@ -237,10 +237,15 @@ module LinkedData
     end
 
     def self.backend_4s_delete
+      puts 'clear backend & index'
       raise StandardError, 'Too many triples in KB, does not seem right to run tests' unless
             count_pattern('?s ?p ?o') < 400000
 
       Goo.sparql_update_client.update('DELETE {?s ?p ?o } WHERE { ?s ?p ?o }')
+      #LinkedData::Models::Base.indexClear(:main)
+      #LinkedData::Models::Base.indexCommit
+      #LinkedData::Models::Base.indexClear(:property)
+      #LinkedData::Models::Base.indexCommit(nil, :property)
       LinkedData::Models::SubmissionStatus.init_enum
       LinkedData::Models::OntologyType.init_enum
       LinkedData::Models::OntologyFormat.init_enum

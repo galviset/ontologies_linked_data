@@ -641,7 +641,7 @@ module LinkedData
               logger.info("error deleting owlapi.rdf")
             end
           end
-          owlapi = owlapi_parser(logger: nil)
+          owlapi = owlapi_parser(logger: Logger.new($stdout))
 
           if !reasoning
             owlapi.disable_reasoner
@@ -1074,6 +1074,7 @@ eos
       #   if no options passed, ALL actions, except for archive = true
       ################################################################
       def process_submission(logger, options = {})
+        puts "process #{self.id}"
         # Wrap the whole process so we can email results
         begin
           process_rdf = false
@@ -1088,6 +1089,7 @@ eos
 
           if options.empty?
             process_rdf = true
+            generate_missing_labels = true
             extract_metadata = true
             index_search = true
             index_properties = true
@@ -1098,7 +1100,8 @@ eos
             archive = false
           else
             process_rdf = options[:process_rdf] == true ? true : false
-            extract_metadata = options[:extract_metadata] == true ? true : false
+            generate_missing_labels = options[:generate_missing_labels].nil? ? process_rdf : options[:generate_missing_labels]
+            extract_metadata = options[:extract_metadata].nil? ?  process_rdf : options[:extract_metadata]
             index_search = options[:index_search] == true ? true : false
             index_properties = options[:index_properties] == true ? true : false
             index_commit = options[:index_commit] == true ? true : false
@@ -1150,9 +1153,11 @@ eos
                 end
                 status = LinkedData::Models::SubmissionStatus.find("RDF").first
                 remove_submission_status(status) #remove RDF status before starting
+                t = Benchmark.measure do
+                  generate_rdf(logger, reasoning: reasoning)
 
-                generate_rdf(logger, reasoning: reasoning)
-
+                end
+                puts "generate rdf time: #{t}"
                 add_submission_status(status)
                 self.save
               rescue Exception => e
@@ -1166,9 +1171,13 @@ eos
               end
             end
 
-            extract_metadata(logger, options[:params]) if extract_metadata || process_rdf
+            t = Benchmark.measure do
+              extract_metadata(logger, options[:params], heavy_extraction: extract_metadata)
+            end
 
-            if process_rdf
+            puts "extract metadata time: #{t}"
+
+            if process_rdf && generate_missing_labels
               file_path = self.uploadFilePath
               callbacks = {
                 missing_labels: {
@@ -1185,28 +1194,32 @@ eos
                   caller_on_post: :generate_missing_labels_post
                 }
               }
+              t = Benchmark.measure do
+                raw_paging = LinkedData::Models::Class.in(self).include(:prefLabel, :synonym, :label)
+                loop_classes(logger, raw_paging, callbacks)
 
-              raw_paging = LinkedData::Models::Class.in(self).include(:prefLabel, :synonym, :label)
-              loop_classes(logger, raw_paging, callbacks)
-
-              status = LinkedData::Models::SubmissionStatus.find("OBSOLETE").first
-              begin
-                generate_obsolete_classes(logger, file_path)
-                add_submission_status(status)
-                self.save
-              rescue Exception => e
-                logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
-                logger.flush
-                add_submission_status(status.get_error_status)
-                self.save
-                # if obsolete fails the parsing fails
-                raise e
+                status = LinkedData::Models::SubmissionStatus.find("OBSOLETE").first
+                begin
+                  generate_obsolete_classes(logger, file_path)
+                  add_submission_status(status)
+                  self.save
+                rescue Exception => e
+                  logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
+                  logger.flush
+                  add_submission_status(status.get_error_status)
+                  self.save
+                  # if obsolete fails the parsing fails
+                  raise e
+                end
               end
+
+              puts "generate labels time: #{t}"
             end
 
             parsed = ready?(status: %i[rdf rdf_labels])
 
             if index_search
+              puts 'do index_search'
               raise Exception, "The submission #{self.ontology.acronym}/submissions/#{self.submissionId} cannot be indexed because it has not been successfully parsed" unless parsed
               status = LinkedData::Models::SubmissionStatus.find("INDEXED").first
               begin
@@ -1225,6 +1238,7 @@ eos
             end
 
             if index_properties
+              puts 'do index_properties'
               raise Exception, "The properties for the submission #{self.ontology.acronym}/submissions/#{self.submissionId} cannot be indexed because it has not been successfully parsed" unless parsed
               status = LinkedData::Models::SubmissionStatus.find("INDEXED_PROPERTIES").first
               begin
@@ -1240,6 +1254,7 @@ eos
             end
 
             if run_metrics
+              puts 'do run_metrics'
               raise Exception, "Metrics cannot be generated on the submission #{self.ontology.acronym}/submissions/#{self.submissionId} because it has not been successfully parsed" unless parsed
               status = LinkedData::Models::SubmissionStatus.find("METRICS").first
               begin
@@ -1256,6 +1271,7 @@ eos
             end
 
             if diff
+              puts 'do diff'
               status = LinkedData::Models::SubmissionStatus.find("DIFF").first
               # Get previous submission from ontology.submissions
               self.ontology.bring(:submissions)

@@ -18,6 +18,9 @@ module LinkedData
         submission_count = options[:submission_count] || 5
         random_submission_count = options[:random_submission_count] || false
         process_submission = options[:process_submission] || false
+        process_options = options[:process_options] || { process_rdf: true, index_search: true, index_properties: true,
+                  run_metrics: true, reasoning: true }
+
         submissions_to_process = options[:submissions_to_process]
         acronym = options[:acronym] || "TEST-ONT"
         name = options[:name]
@@ -112,9 +115,7 @@ module LinkedData
               tmp_log = Logger.new(test_log_file)
               
               begin
-                ss.process_submission(tmp_log,
-                                    process_rdf: true, index_search: true, index_properties: true,
-                                    run_metrics: true, reasoning: true)
+                ss.process_submission(tmp_log, process_options)
               rescue Exception => e
                 puts "Error processing submission: #{ss.id.to_s}"
                 puts "See test log for errors: #{test_log_file.path}"
