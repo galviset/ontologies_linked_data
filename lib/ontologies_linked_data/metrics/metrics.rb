@@ -54,9 +54,9 @@ module LinkedData
       roots = submission.roots
       
       max_depth = 0
+      rdfsSC = Goo.namespaces[:rdfs][:subClassOf]
       unless is_flat
         depths = []
-        rdfsSC = Goo.namespaces[:rdfs][:subClassOf]
         roots.each do |root|
           ok = true
           n=1

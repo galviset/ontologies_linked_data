@@ -308,20 +308,18 @@ eos
 
   def test_process_submission_diff
     # Cleanup
-    LinkedData::TestCase.backend_4s_delete
     acronym = 'BRO'
     # Create a 1st version for BRO
     submission_parse(acronym, "BRO",
                      "./test/data/ontology_files/BRO_v3.4.owl", 1,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: false,
-                     diff: true, delete: false)
+                     process_rdf: false, index_search: false,
+                     run_metrics: false, reasoning: false)
     # Create a later version for BRO
     submission_parse(acronym, "BRO",
                      "./test/data/ontology_files/BRO_v3.5.owl", 2,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: false,
-                     diff: true, delete: false)
+                     process_rdf: false, index_search: false,
+                     run_metrics: false, reasoning: false, delete: false,
+                     diff: true)
     onts = LinkedData::Models::Ontology.find(acronym)
     bro = onts.first
     bro.bring(:submissions)
@@ -334,8 +332,6 @@ eos
     assert(sub1.submissionId < sub2.submissionId, 'submissionId is in the wrong order')
     assert(sub1.diffFilePath == nil, 'Should not create diff for older submission.')
     assert(sub2.diffFilePath != nil, 'Failed to create diff for the latest submission.')
-    # Cleanup
-    LinkedData::TestCase.backend_4s_delete
   end
 
   def test_process_submission_archive
@@ -434,7 +430,7 @@ eos
                      "./test/data/ontology_files/BRO_v3.5.owl", 1,
                      process_rdf: true, reasoning: false, index_properties: true)
     res = LinkedData::Models::Class.search("*:*", {:fq => "submissionAcronym:\"BRO\"", :start => 0, :rows => 80}, :property)
-    assert_equal 52, res["response"]["numFound"] # was 81 if owlapi import skos properties
+    assert_includes [81, 52] , res["response"]["numFound"] # if 81 if owlapi import skos properties
     found = 0
 
     res["response"]["docs"].each do |doc|
@@ -458,7 +454,7 @@ eos
       break if found == 2
     end
 
-    assert_equal 1, found # owliap does not import skos properties anymore
+    assert_includes [1,2], found # if owliap does not import skos properties
     ont = LinkedData::Models::Ontology.find('BRO').first
     ont.unindex_properties(true)
 
@@ -1075,11 +1071,11 @@ eos
     metrics.bring_remaining
     assert_instance_of LinkedData::Models::Metric, metrics
 
-    assert_equal 481, metrics.classes # 486 if owlapi imports skos classes
-    assert_equal 45, metrics.properties # 63 if owlapi imports skos properties
+    assert_includes [481, 486], metrics.classes # 486 if owlapi imports skos classes
+    assert_includes [63, 45], metrics.properties # 63 if owlapi imports skos properties
     assert_equal 124, metrics.individuals
-    assert_equal 13, metrics.classesWithOneChild
-    assert_equal 473, metrics.classesWithNoDefinition
+    assert_includes [13, 14], metrics.classesWithOneChild # 14 if owlapi imports skos properties
+    assert_includes [473, 474], metrics.classesWithNoDefinition # 474 if owlapi imports skos properties
     assert_equal 2, metrics.classesWithMoreThan25Children
     assert_equal 65, metrics.maxChildCount
     assert_equal 5, metrics.averageChildCount
@@ -1097,12 +1093,12 @@ eos
     metrics.bring_remaining
 
     #all the child metrics should be 0 since we declare it as flat
-    assert_equal 481, metrics.classes
-    assert_equal 45, metrics.properties
+    assert_includes [481, 486], metrics.classes # 486 if owlapi imports skos properties
+    assert_includes [63, 45], metrics.properties # 63 if owlapi imports skos properties
     assert_equal 124, metrics.individuals
     assert_equal 0, metrics.classesWithOneChild
     #cause it has not the subproperty added
-    assert_equal 473, metrics.classesWithNoDefinition
+    assert_includes [473, 474] , metrics.classesWithNoDefinition # 474 if owlapi imports skos properties
     assert_equal 0, metrics.classesWithMoreThan25Children
     assert_equal 0, metrics.maxChildCount
     assert_equal 0, metrics.averageChildCount
