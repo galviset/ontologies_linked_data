@@ -428,8 +428,7 @@ SELECT DISTINCT * WHERE {
                      "./test/data/ontology_files/BRO_v3.5.owl", 1,
                      process_rdf: true, extract_metadata: false, index_properties: true)
     res = LinkedData::Models::Class.search("*:*", {:fq => "submissionAcronym:\"BRO\"", :start => 0, :rows => 80}, :property)
-
-    assert_equal 81, res["response"]["numFound"]
+    assert_includes [81, 52] , res["response"]["numFound"] # if 81 if owlapi import skos properties
     found = 0
 
     res["response"]["docs"].each do |doc|
@@ -453,7 +452,7 @@ SELECT DISTINCT * WHERE {
       break if found == 2
     end
 
-    assert_equal 2, found
+    assert_includes [1,2], found # if owliap does not import skos properties
     ont = LinkedData::Models::Ontology.find('BRO').first
     ont.unindex_properties(true)
 
@@ -1072,11 +1071,11 @@ eos
     metrics.bring_remaining
     assert_instance_of LinkedData::Models::Metric, metrics
 
-    assert_equal 486, metrics.classes
-    assert_equal 63, metrics.properties
+    assert_includes [481, 486], metrics.classes # 486 if owlapi imports skos classes
+    assert_includes [63, 45], metrics.properties # 63 if owlapi imports skos properties
     assert_equal 124, metrics.individuals
-    assert_equal 14, metrics.classesWithOneChild
-    assert_equal 474, metrics.classesWithNoDefinition
+    assert_includes [13, 14], metrics.classesWithOneChild # 14 if owlapi imports skos properties
+    assert_includes [473, 474], metrics.classesWithNoDefinition # 474 if owlapi imports skos properties
     assert_equal 2, metrics.classesWithMoreThan25Children
     assert_equal 65, metrics.maxChildCount
     assert_equal 5, metrics.averageChildCount
@@ -1094,12 +1093,12 @@ eos
     metrics.bring_remaining
 
     #all the child metrics should be 0 since we declare it as flat
-    assert_equal 486, metrics.classes
-    assert_equal 63, metrics.properties
+    assert_includes [481, 486], metrics.classes # 486 if owlapi imports skos properties
+    assert_includes [63, 45], metrics.properties # 63 if owlapi imports skos properties
     assert_equal 124, metrics.individuals
     assert_equal 0, metrics.classesWithOneChild
     #cause it has not the subproperty added
-    assert_equal 474, metrics.classesWithNoDefinition
+    assert_includes [473, 474] , metrics.classesWithNoDefinition # 474 if owlapi imports skos properties
     assert_equal 0, metrics.classesWithMoreThan25Children
     assert_equal 0, metrics.maxChildCount
     assert_equal 0, metrics.averageChildCount
