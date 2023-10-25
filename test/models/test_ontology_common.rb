@@ -44,10 +44,6 @@ module LinkedData
     #   delete            = true  # delete any existing submissions
     ##############################################
     def submission_parse(acronym, name, ontologyFile, id, parse_options={})
-      if Goo.backend_vo?
-        Goo.slice_loading_size = 20
-      end
-
       return if ENV["SKIP_PARSING"]
       parse_options[:process_rdf] = true
       parse_options[:delete].nil? && parse_options[:delete] = true
