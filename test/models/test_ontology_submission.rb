@@ -424,7 +424,7 @@ eos
     bro35.bring(:submissions)
     sub35 = bro35.submissions.first
     # Calculate the ontology diff: bro35 - bro34
-    tmp_log = Logger.new(TestLogFile.new)
+    tmp_log = Logger.new($stdout)
     sub35.diff(tmp_log, sub34)
     assert(sub35.diffFilePath != nil, 'Failed to create submission diff file.')
   end
@@ -434,7 +434,7 @@ eos
                      "./test/data/ontology_files/BRO_v3.5.owl", 1,
                      process_rdf: true, reasoning: false, index_properties: true)
     res = LinkedData::Models::Class.search("*:*", {:fq => "submissionAcronym:\"BRO\"", :start => 0, :rows => 80}, :property)
-    assert_equal 81, res["response"]["numFound"]
+    assert_equal 52, res["response"]["numFound"] # was 81 if owlapi import skos properties
     found = 0
 
     res["response"]["docs"].each do |doc|
@@ -458,7 +458,7 @@ eos
       break if found == 2
     end
 
-    assert_equal 2, found
+    assert_equal 1, found # owliap does not import skos properties anymore
     ont = LinkedData::Models::Ontology.find('BRO').first
     ont.unindex_properties(true)
 
@@ -602,17 +602,7 @@ eos
 
   def test_download_ontology_file
     begin
-      server_port = Random.rand(55000..65535) # http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic.2C_private_or_ephemeral_ports
-      server_url = 'http://localhost:' + server_port.to_s
-      server_thread = Thread.new do
-        Rack::Server.start(
-            app: lambda do |e|
-              [200, {'Content-Type' => 'text/plain'}, ['test file']]
-            end,
-            Port: server_port
-        )
-      end
-      Thread.pass
+      server_url, server_thread, server_port  = start_server
       sleep 3  # Allow the server to startup
       assert(server_thread.alive?, msg="Rack::Server thread should be alive, it's not!")
       ont_count, ont_names, ont_models = create_ontologies_and_submissions(ont_count: 1, submission_count: 1)
@@ -1085,11 +1075,11 @@ eos
     metrics.bring_remaining
     assert_instance_of LinkedData::Models::Metric, metrics
 
-    assert_equal 486, metrics.classes
-    assert_equal 63, metrics.properties
+    assert_equal 481, metrics.classes # 486 if owlapi imports skos classes
+    assert_equal 45, metrics.properties # 63 if owlapi imports skos properties
     assert_equal 124, metrics.individuals
-    assert_equal 14, metrics.classesWithOneChild
-    assert_equal 474, metrics.classesWithNoDefinition
+    assert_equal 13, metrics.classesWithOneChild
+    assert_equal 473, metrics.classesWithNoDefinition
     assert_equal 2, metrics.classesWithMoreThan25Children
     assert_equal 65, metrics.maxChildCount
     assert_equal 5, metrics.averageChildCount
@@ -1107,12 +1097,12 @@ eos
     metrics.bring_remaining
 
     #all the child metrics should be 0 since we declare it as flat
-    assert_equal 486, metrics.classes
-    assert_equal 63, metrics.properties
+    assert_equal 481, metrics.classes
+    assert_equal 45, metrics.properties
     assert_equal 124, metrics.individuals
     assert_equal 0, metrics.classesWithOneChild
     #cause it has not the subproperty added
-    assert_equal 474, metrics.classesWithNoDefinition
+    assert_equal 473, metrics.classesWithNoDefinition
     assert_equal 0, metrics.classesWithMoreThan25Children
     assert_equal 0, metrics.maxChildCount
     assert_equal 0, metrics.averageChildCount

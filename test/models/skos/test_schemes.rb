@@ -20,6 +20,8 @@ class TestSchemes < LinkedData::TestOntologyCommon
 
     assert_equal 66, schemes.size
     schemes_test = test_data
+    schemes_test = schemes_test.sort_by{|x| x[:id]}
+    schemes = schemes.sort_by{|x| x.id.to_s}
 
     schemes.each_with_index do |x, i|
       scheme_test = schemes_test[i]
