@@ -22,7 +22,13 @@ class TestHTTPCache < LinkedData::TestCase
   end
 
   def _ontology_and_class
-    results = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: true)
+    results = create_ontologies_and_submissions(ont_count: 1, submission_count: 1,
+                                                process_submission: true,
+                                                process_options: {
+                                                  process_rdf: true,
+                                                  extract_metadata: false,
+                                                  generate_missing_labels: false
+                                                })
     ontology = results[2].first
     cls = LinkedData::Models::Class.where.include(:prefLabel).in(ontology.latest_submission).first
     return ontology, cls

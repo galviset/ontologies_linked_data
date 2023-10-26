@@ -237,6 +237,7 @@ module LinkedData
     end
 
     def self.backend_4s_delete
+      puts 'clear backend & index'
       raise StandardError, 'Too many triples in KB, does not seem right to run tests' unless
             count_pattern('?s ?p ?o') < 400000
 

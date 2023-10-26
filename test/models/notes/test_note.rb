@@ -2,7 +2,6 @@ require_relative "../../test_case"
 
 class TestNote < LinkedData::TestCase
   def self.before_suite
-    self.new("before_suite").delete_ontologies_and_submissions
     @@ontology, @@cls = self.new("before_suite")._ontology_and_class
     @@note_user = "test_note_user"
     @@user = LinkedData::Models::User.new(
@@ -14,12 +13,13 @@ class TestNote < LinkedData::TestCase
   end
 
   def self.after_suite
-    self.new("after_suite").delete_ontologies_and_submissions
     @@user.delete
   end
 
   def _ontology_and_class
-    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: true)
+    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 1, submission_count: 1,
+                                                                    process_submission: true,
+                                                                    process_options: {process_rdf: true, extract_metadata: false})
     ontology = ontologies.first
     cls = LinkedData::Models::Class.where.include(:prefLabel).in(ontology.latest_submission).read_only.first
     return ontology, cls

@@ -74,7 +74,6 @@ class TestCategory < LinkedData::TestCase
   end
 
   def test_category_inverse_of
-    delete_ontologies_and_submissions
     ont_count, ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1)
     ont = onts.first
     ont.hasDomain = [@category]

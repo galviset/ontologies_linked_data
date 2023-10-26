@@ -5,7 +5,6 @@ require_relative "../test_case"
 class TestSlice < LinkedData::TestCase
 
   def self.before_suite
-    self.new("before_suite").delete_ontologies_and_submissions
     @@orig_slices_setting = LinkedData.settings.enable_slices
     LinkedData.settings.enable_slices = true
     @@onts = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 5, submission_count: 0)[2]
@@ -20,7 +19,6 @@ class TestSlice < LinkedData::TestCase
   end
 
   def self.after_suite
-    self.new("after_suite").delete_ontologies_and_submissions
     LinkedData.settings.enable_slices = @@orig_slices_setting
     LinkedData::Models::Slice.all.each {|s| s.delete}
     LinkedData::Models::Group.all.each {|g| g.delete}

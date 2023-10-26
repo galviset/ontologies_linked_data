@@ -3,8 +3,6 @@ require_relative "../test_case"
 class TestAccessControl < LinkedData::TestCase
 
   def self.before_suite
-    self.new("before_suite").delete_ontologies_and_submissions
-
     @@usernames = ["user1", "user2", "user3", "admin"]
     _delete_users
     @@usernames.each do |username|
@@ -56,7 +54,6 @@ class TestAccessControl < LinkedData::TestCase
   def self.after_suite
     LinkedData.settings.enable_security = @@old_security_setting if class_variable_defined?("@@old_security_setting")
     _delete_users
-    self.new("after_suite").delete_ontologies_and_submissions
     @@note.delete if class_variable_defined?("@@note") && @@note.exist?
   end
 
