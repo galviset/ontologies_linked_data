@@ -53,6 +53,8 @@ module LinkedData
     def submission_parse(acronym, name, ontologyFile, id, parse_options={})
       return if ENV["SKIP_PARSING"]
       parse_options[:process_rdf].nil? && parse_options[:process_rdf] = true
+      parse_options[:index_search].nil? && parse_options[:index_search] = false
+      parse_options[:extract_metadata].nil? && parse_options[:extract_metadata] = false
       parse_options[:delete].nil? && parse_options[:delete] = true
       if parse_options[:delete]
         ont = LinkedData::Models::Ontology.find(acronym).first

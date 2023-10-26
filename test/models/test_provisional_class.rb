@@ -3,12 +3,11 @@ require_relative "./test_ontology_common"
 class TestProvisionalClass < LinkedData::TestOntologyCommon
 
   def self.before_suite
-    self._delete
-
     @@user = LinkedData::Models::User.new({username: "Test User", email: "tester@example.org", password: "password"})
     @@user.save
 
-    ont_count, ont_names, ont_models = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1, submission_count: 1)
+    ont_count, ont_names, ont_models = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1,
+                                                                                                          submission_count: 1)
     @@ontology = ont_models.first
     @@ontology.bring(:name)
     @@ontology.bring(:acronym)
@@ -21,15 +20,15 @@ class TestProvisionalClass < LinkedData::TestOntologyCommon
   def self.after_suite
     pc = LinkedData::Models::ProvisionalClass.find(@@provisional_class.id).first
     pc.delete unless pc.nil?
+
     LinkedData::Models::Ontology.indexClear
     LinkedData::Models::Ontology.indexCommit
-  end
-
-  def self._delete
     LinkedData::SampleData::Ontology.delete_ontologies_and_submissions
     user = LinkedData::Models::User.find("Test User").first
     user.delete unless user.nil?
+
   end
+
 
   def test_provisional_class_lifecycle
     label = "Test Provisional Class Lifecycle"
