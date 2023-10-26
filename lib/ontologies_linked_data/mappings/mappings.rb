@@ -99,7 +99,6 @@ module LinkedData
                         "Retrieved #{s_total} records for #{acro} in #{Time.now - t0} seconds.")
           logger.flush
         end
-        sleep(5)
       end
 
       if enable_debug
@@ -684,10 +683,12 @@ GROUP BY ?ontology
         self.create_mapping_count_totals_for_ontologies(logger, arr_acronyms)
       end
       logger.info("Completed rebuilding total mapping counts for #{ont_msg} in #{(time / 60).round(1)} minutes.")
+      puts "create mappings total count time: #{time}"
 
       time = Benchmark.realtime do
         self.create_mapping_count_pairs_for_ontologies(logger, arr_acronyms)
       end
+      puts "create mappings pair count time: #{time}"
       logger.info("Completed rebuilding mapping count pairs for #{ont_msg} in #{(time / 60).round(1)} minutes.")
     end
 
@@ -848,7 +849,6 @@ GROUP BY ?ontology
         end
         remaining_ont = ont_total - ont_ctr
         logger.info("Completed processing pair mapping counts for #{acr}. " << ((remaining_ont > 0) ? "#{remaining_ont} ontologies remaining..." : "All ontologies processed!"))
-        sleep(5)
       end
       # fsave.close
     end

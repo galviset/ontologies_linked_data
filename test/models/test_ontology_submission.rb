@@ -342,7 +342,7 @@ SELECT DISTINCT * WHERE {
     ont_count, ont_acronyms, ontologies =
       create_ontologies_and_submissions(ont_count: 1, submission_count: 2,
                                         process_submission: true,
-                                        acronym: 'NCBO-545', process_options: {process_rdf: false})
+                                        acronym: 'NCBO-545', process_options: {process_rdf: true, extract_metadata: false})
     # Sanity check.
     assert_equal 1, ontologies.count
     assert_equal 2, ontologies.first.submissions.count

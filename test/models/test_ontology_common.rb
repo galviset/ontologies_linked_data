@@ -2,6 +2,14 @@ require_relative "../test_case"
 
 module LinkedData
   class TestOntologyCommon < LinkedData::TestCase
+    def create_count_mapping
+      count = LinkedData::Models::MappingCount.where.all.length
+      unless count > 2
+        LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
+        count = LinkedData::Models::MappingCount.where.all.length
+      end
+      count
+    end
     def submission_dependent_objects(format, acronym, user_name, name_ont)
       #ontology format
       owl = LinkedData::Models::OntologyFormat.where(:acronym => format).first
@@ -44,7 +52,7 @@ module LinkedData
     ##############################################
     def submission_parse(acronym, name, ontologyFile, id, parse_options={})
       return if ENV["SKIP_PARSING"]
-      parse_options[:process_rdf] = true
+      parse_options[:process_rdf].nil? && parse_options[:process_rdf] = true
       parse_options[:delete].nil? && parse_options[:delete] = true
       if parse_options[:delete]
         ont = LinkedData::Models::Ontology.find(acronym).first
