@@ -176,7 +176,7 @@ module LinkedData
 
       def self.sample_owl_ontologies
         count, acronyms, bro = create_ontologies_and_submissions({
-          process_submission: true,
+          process_submission: false,
           acronym: "BROTEST",
           name: "ontTEST Bla",
           file_path: "../../../../test/data/ontology_files/BRO_v3.2.owl",
@@ -186,7 +186,7 @@ module LinkedData
 
         # This one has some nasty looking IRIS with slashes in the anchor
         count, acronyms, mccl = create_ontologies_and_submissions({
-          process_submission: true,
+          process_submission: false,
           acronym: "MCCLTEST",
           name: "MCCLS TEST",
           file_path: "../../../../test/data/ontology_files/CellLine_OWL_BioPortal_v1.0.owl",
@@ -196,7 +196,7 @@ module LinkedData
 
         # This one has resources wih accents.
         count, acronyms, onto_matest = create_ontologies_and_submissions({
-          process_submission: true,
+          process_submission: false,
           acronym: "ONTOMATEST",
           name: "OntoMA TEST",
           file_path: "../../../../test/data/ontology_files/OntoMA.1.1_vVersion_1.1_Date__11-2011.OWL",
