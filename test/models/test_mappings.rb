@@ -11,6 +11,7 @@ class TestMapping < LinkedData::TestOntologyCommon
 
 
   def self.before_suite
+    backend_4s_delete
     ontologies_parse
   end
 
