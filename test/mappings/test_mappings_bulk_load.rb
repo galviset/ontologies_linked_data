@@ -8,14 +8,15 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
 
   def self.before_suite
     helper = LinkedData::TestOntologyCommon.new(self)
+    # indexation is needed
     helper.submission_parse(ONT_ACR1,
                             'MappingOntTest1',
                             './test/data/ontology_files/BRO_v3.3.owl', 11,
-                            process_rdf: true, extract_metadata: false)
+                            process_rdf: true, extract_metadata: false, index_search: true)
     helper.submission_parse(ONT_ACR2,
                             'MappingOntTest2',
                             './test/data/ontology_files/CNO_05.owl', 22,
-                            process_rdf: true, extract_metadata: false)
+                            process_rdf: true, extract_metadata: false,  index_search: true)
   end
 
 

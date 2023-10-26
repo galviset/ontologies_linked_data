@@ -108,6 +108,8 @@ class TestMapping < LinkedData::TestOntologyCommon
       end
       assert validate_mapping(map), "mapping is not valid"
     end
+    assert create_count_mapping > 2
+
     by_ont_counts = LinkedData::Mappings.mapping_ontologies_count(latest_sub,nil)
     total = 0
     by_ont_counts.each do |k,v|
