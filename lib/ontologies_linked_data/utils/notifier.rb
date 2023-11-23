@@ -114,7 +114,9 @@ module LinkedData
           options.merge!({
                           user_name: LinkedData.settings.smtp_user,
                           password: LinkedData.settings.smtp_password,
-                          authentication: LinkedData.settings.smtp_auth_type
+                          authentication: LinkedData.settings.smtp_auth_type,
+                          ssl: LinkedData.settings.smtp_ssl,
+                          tls: LinkedData.settings.smtp_tls
                         })
         end
 
